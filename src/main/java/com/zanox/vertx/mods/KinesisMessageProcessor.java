@@ -18,6 +18,8 @@ package com.zanox.vertx.mods;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.*;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.retry.RetryPolicy;
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClient;
 import com.amazonaws.services.kinesis.model.PutRecordRequest;
@@ -43,7 +45,7 @@ import static com.zanox.vertx.mods.internal.KinesisProperties.*;
 public class KinesisMessageProcessor extends BusModBase implements Handler<Message<JsonObject>> {
 
     private AmazonKinesisAsyncClient kinesisAsyncClient;
-    private String streamName, partitionKey;
+    private String streamName, partitionKey, region;
 
     @Override
     public void handle(Message<JsonObject> jsonObjectMessage) {
@@ -86,8 +88,15 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
         int socketTimeout = getOptionalIntConfig(SOCKET_TIMEOUT, ClientConfiguration.DEFAULT_SOCKET_TIMEOUT);
         boolean useReaper = getOptionalBooleanConfig(USE_REAPER, ClientConfiguration.DEFAULT_USE_REAPER);
         String userAgent = getOptionalStringConfig(USER_AGENT, ClientConfiguration.DEFAULT_USER_AGENT);
+
+
         streamName = getMandatoryStringConfig(STREAM_NAME);
         partitionKey = getMandatoryStringConfig(PARTITION_KEY);
+	    region = getMandatoryStringConfig(REGION);
+
+	    logger.info(" --- Stream name: " + streamName);
+	    logger.info(" --- Partition key: " + partitionKey);
+	    logger.info(" --- Region: " + region);
 
         ClientConfiguration clientConfiguration = new ClientConfiguration();
         clientConfiguration.setConnectionTimeout(connectionTimeout);
@@ -102,6 +111,8 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 
         // Configuring Kinesis-client with configuration
         AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
+	    Region awsRegion = RegionUtils.getRegion(region);
+	    kinesisAsyncClient.setRegion(awsRegion);
 
         return kinesisAsyncClient;
     }
@@ -116,7 +127,17 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
             return;
         }
 
-        byte [] payload = event.body().getBinary(PAYLOAD);
+	    JsonObject object = event.body();
+	    logger.debug(" --- Got event " + event.toString());
+	    logger.debug(" --- Got body + " + object.toString());
+
+        byte [] payload = object.getBinary(PAYLOAD);
+
+	    if (payload == null) {
+		    logger.debug(" --- Payload is null, trying to get the payload as String");
+		    payload = object.getString(PAYLOAD).getBytes();
+	    }
+	    logger.debug("Binary payload size: " + payload.length);
 
         PutRecordRequest putRecordRequest = new PutRecordRequest();
         putRecordRequest.setStreamName(streamName);

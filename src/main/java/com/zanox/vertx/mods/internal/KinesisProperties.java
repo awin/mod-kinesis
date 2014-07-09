@@ -28,4 +28,5 @@ public class KinesisProperties {
     public static final String USER_AGENT = "userAgent";
     public static final String STREAM_NAME = "streamName";
     public static final String PARTITION_KEY = "partitionKey";
+	public static final String REGION = "region";
 }
