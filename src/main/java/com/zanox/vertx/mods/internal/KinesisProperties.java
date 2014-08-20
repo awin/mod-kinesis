@@ -29,4 +29,6 @@ public class KinesisProperties {
     public static final String STREAM_NAME = "streamName";
     public static final String PARTITION_KEY = "partitionKey";
 	public static final String REGION = "region";
+	public static final String AWS_ACCESS_KEY = "awsAccessKey";
+	public static final String AWS_SECRET_KEY = "awsSecretKey";
 }

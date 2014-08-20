@@ -106,8 +106,12 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
         clientConfiguration.setUseReaper(useReaper);
         clientConfiguration.setUserAgent(userAgent);
 
-        // Reading credentials from ENV-variables
-        AWSCredentialsProvider awsCredentialsProvider = new EnvironmentVariableCredentialsProvider();
+        // Reading credentials from Classpath
+		// the file is called AwsCredentials.properties
+	    // Properties are:
+	    //  - accessKey
+	    //  - secretKey
+	    AWSCredentialsProvider awsCredentialsProvider = new ClasspathPropertiesFileCredentialsProvider();
 
         // Configuring Kinesis-client with configuration
         AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
