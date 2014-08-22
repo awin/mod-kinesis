@@ -159,14 +159,9 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
             sendOK(event);
         }
 
-        catch (InterruptedException iexc) {
+        catch (InterruptedException | ExecutionException iexc) {
             logger.error(iexc);
             sendError(event, "Failed sending message to Kinesis", iexc);
-        }
-
-        catch (ExecutionException eexc) {
-            logger.error(eexc);
-            sendError(event, "Failed sending message to Kinesis", eexc);
         }
     }
 
