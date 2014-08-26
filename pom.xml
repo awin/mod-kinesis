@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.smo.vertx.kinesis</groupId>
+    <groupId>com.zanox.vertx.mods</groupId>
     <artifactId>mod-kinesis</artifactId>
     <packaging>jar</packaging>
     <version>1.2-SNAPSHOT</version>
@@ -13,6 +13,9 @@
     <developers>
         <developer>
             <name>Sascha Möllering</name>
+            <email>sascha.moellering@zanox.com</email>
+            <organization>ZANOX AG</organization>
+            <url>http://www.zanox.com</url>
         </developer>
     </developers>
 
