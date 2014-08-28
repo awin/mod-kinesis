@@ -5,7 +5,7 @@
     <groupId>com.zanox.vertx.mods</groupId>
     <artifactId>mod-kinesis</artifactId>
     <packaging>jar</packaging>
-    <version>1.3.4-SNAPSHOT</version>
+    <version>1.3.4</version>
     <name>Project - mod-kinesis</name>
     <description>Amazon Kinesis module for Vert.x framework</description>
     <url>https://github.com/zanox/mod-kinesis</url>
@@ -157,6 +157,17 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- The Base URL of Nexus instance where we want to stage -->
+                    <nexusUrl>https://oss.sonatype.org/service/local/staging/deploy/maven2/</nexusUrl>
+                    <serverId>sonatype-nexus-staging</serverId>
+                </configuration>
+            </plugin>
 
             <!-- The vert.x Maven plugin -->
             <plugin>
