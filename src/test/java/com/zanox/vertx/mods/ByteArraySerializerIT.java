@@ -1,16 +1,12 @@
 package com.zanox.vertx.mods;
 
-import com.zanox.vertx.mods.internal.EventProperties;
-import org.junit.Test;
 import org.vertx.java.core.AsyncResult;
 import org.vertx.java.core.AsyncResultHandler;
-import org.vertx.java.core.Handler;
-import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.testtools.TestVerticle;
 
-import static org.junit.Assert.*;
-import static org.vertx.testtools.VertxAssert.testComplete;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ByteArraySerializerIT extends TestVerticle {
 

@@ -25,7 +25,6 @@ import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,7 +40,7 @@ public class KinesisEventProcessorTest {
 	private KinesisMessageProcessor kinesisMessageProcessor;
 
 	@Test
-	public void sendMessageToKinesis() throws Exception{
+	public void sendMessageToKinesis() throws Exception {
 		KinesisMessageProcessor kinesisMessageProcessorSpy = spy(kinesisMessageProcessor);
 
 		JsonObject jsonObjectMock = mock(JsonObject.class);

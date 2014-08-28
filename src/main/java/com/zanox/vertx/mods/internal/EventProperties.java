@@ -18,10 +18,10 @@ package com.zanox.vertx.mods.internal;
 
 public class EventProperties {
 
-    /* Non-instantiable class */
-    private EventProperties() {}
-
-    public static final String HEADER = "header";
-    public static final String PAYLOAD = "payload";
+	public static final String HEADER = "header";
+	public static final String PAYLOAD = "payload";
+	/* Non-instantiable class */
+	private EventProperties() {
+	}
 
 }

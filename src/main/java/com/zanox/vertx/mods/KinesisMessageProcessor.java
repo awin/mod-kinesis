@@ -17,7 +17,8 @@
 package com.zanox.vertx.mods;
 
 import com.amazonaws.ClientConfiguration;
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.retry.RetryPolicy;
@@ -44,128 +45,123 @@ import static com.zanox.vertx.mods.internal.KinesisProperties.*;
  */
 public class KinesisMessageProcessor extends BusModBase implements Handler<Message<JsonObject>> {
 
-    private AmazonKinesisAsyncClient kinesisAsyncClient;
-    private String streamName, partitionKey, region;
+	private AmazonKinesisAsyncClient kinesisAsyncClient;
+	private String streamName, partitionKey, region;
 
-    @Override
-    public void handle(Message<JsonObject> jsonObjectMessage) {
-        try {
-            sendMessageToKinesis(jsonObjectMessage);
-        }
+	@Override
+	public void handle(Message<JsonObject> jsonObjectMessage) {
+		try {
+			sendMessageToKinesis(jsonObjectMessage);
+		} catch (KinesisException exc) {
+			logger.error(exc);
+		}
+	}
 
-        catch (KinesisException exc) {
-            logger.error(exc);
-        }
-    }
+	@Override
+	public void start() {
+		super.start();
 
-    @Override
-    public void start() {
-        super.start();
+		kinesisAsyncClient = createClient();
 
-        kinesisAsyncClient = createClient();
+		// Get the address of EventBus where the message was published
+		final String address = getMandatoryStringConfig("address");
 
-        // Get the address of EventBus where the message was published
-        final String address = getMandatoryStringConfig("address");
+		vertx.eventBus().registerHandler(address, this);
+	}
 
-        vertx.eventBus().registerHandler(address, this);
-    }
+	@Override
+	public void stop() {
+		if (kinesisAsyncClient != null) {
+			kinesisAsyncClient.shutdown();
+		}
+	}
 
-    @Override
-    public void stop() {
-        if (kinesisAsyncClient != null) {
-            kinesisAsyncClient.shutdown();
-        }
-    }
+	private AmazonKinesisAsyncClient createClient() {
 
-    private AmazonKinesisAsyncClient createClient() {
+		// Building Kinesis configuration
+		int connectionTimeout = getOptionalIntConfig(CONNECTION_TIMEOUT, ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT);
+		int maxConnection = getOptionalIntConfig(MAX_CONNECTION, ClientConfiguration.DEFAULT_MAX_CONNECTIONS);
 
-        // Building Kinesis configuration
-        int connectionTimeout = getOptionalIntConfig(CONNECTION_TIMEOUT, ClientConfiguration.DEFAULT_CONNECTION_TIMEOUT);
-        int maxConnection = getOptionalIntConfig(MAX_CONNECTION, ClientConfiguration.DEFAULT_MAX_CONNECTIONS);
-
-        // TODO: replace default retry policy
-        RetryPolicy retryPolicy = ClientConfiguration.DEFAULT_RETRY_POLICY;
-        int socketTimeout = getOptionalIntConfig(SOCKET_TIMEOUT, ClientConfiguration.DEFAULT_SOCKET_TIMEOUT);
-        boolean useReaper = getOptionalBooleanConfig(USE_REAPER, ClientConfiguration.DEFAULT_USE_REAPER);
-        String userAgent = getOptionalStringConfig(USER_AGENT, ClientConfiguration.DEFAULT_USER_AGENT);
+		// TODO: replace default retry policy
+		RetryPolicy retryPolicy = ClientConfiguration.DEFAULT_RETRY_POLICY;
+		int socketTimeout = getOptionalIntConfig(SOCKET_TIMEOUT, ClientConfiguration.DEFAULT_SOCKET_TIMEOUT);
+		boolean useReaper = getOptionalBooleanConfig(USE_REAPER, ClientConfiguration.DEFAULT_USE_REAPER);
+		String userAgent = getOptionalStringConfig(USER_AGENT, ClientConfiguration.DEFAULT_USER_AGENT);
 
 
-        streamName = getMandatoryStringConfig(STREAM_NAME);
-        partitionKey = getMandatoryStringConfig(PARTITION_KEY);
-	    region = getMandatoryStringConfig(REGION);
+		streamName = getMandatoryStringConfig(STREAM_NAME);
+		partitionKey = getMandatoryStringConfig(PARTITION_KEY);
+		region = getMandatoryStringConfig(REGION);
 
-	    logger.info(" --- Stream name: " + streamName);
-	    logger.info(" --- Partition key: " + partitionKey);
-	    logger.info(" --- Region: " + region);
+		logger.info(" --- Stream name: " + streamName);
+		logger.info(" --- Partition key: " + partitionKey);
+		logger.info(" --- Region: " + region);
 
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        clientConfiguration.setConnectionTimeout(connectionTimeout);
-        clientConfiguration.setMaxConnections(maxConnection);
-        clientConfiguration.setRetryPolicy(retryPolicy);
-        clientConfiguration.setSocketTimeout(socketTimeout);
-        clientConfiguration.setUseReaper(useReaper);
-        clientConfiguration.setUserAgent(userAgent);
+		ClientConfiguration clientConfiguration = new ClientConfiguration();
+		clientConfiguration.setConnectionTimeout(connectionTimeout);
+		clientConfiguration.setMaxConnections(maxConnection);
+		clientConfiguration.setRetryPolicy(retryPolicy);
+		clientConfiguration.setSocketTimeout(socketTimeout);
+		clientConfiguration.setUseReaper(useReaper);
+		clientConfiguration.setUserAgent(userAgent);
 
-        // Reading credentials from Classpath
+		// Reading credentials from Classpath
 		// the file is called AwsCredentials.properties
-	    // Properties are:
-	    //  - accessKey
-	    //  - secretKey
-	    AWSCredentialsProvider awsCredentialsProvider = new ClasspathPropertiesFileCredentialsProvider();
+		// Properties are:
+		//  - accessKey
+		//  - secretKey
+		AWSCredentialsProvider awsCredentialsProvider = new ClasspathPropertiesFileCredentialsProvider();
 
-        // Configuring Kinesis-client with configuration
-        AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
-	    Region awsRegion = RegionUtils.getRegion(region);
-	    kinesisAsyncClient.setRegion(awsRegion);
+		// Configuring Kinesis-client with configuration
+		AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
+		Region awsRegion = RegionUtils.getRegion(region);
+		kinesisAsyncClient.setRegion(awsRegion);
 
-        return kinesisAsyncClient;
-    }
+		return kinesisAsyncClient;
+	}
 
-    protected void sendMessageToKinesis(Message<JsonObject> event) throws KinesisException {
-        if (kinesisAsyncClient == null) {
-            throw new KinesisException("AmazonKinesisAsyncClient is not initialized");
-        }
+	protected void sendMessageToKinesis(Message<JsonObject> event) throws KinesisException {
+		if (kinesisAsyncClient == null) {
+			throw new KinesisException("AmazonKinesisAsyncClient is not initialized");
+		}
 
-        if(!isValid(event.body().getString(PAYLOAD))) {
-            logger.error("Invalid message provided.");
-            return;
-        }
+		if (!isValid(event.body().getString(PAYLOAD))) {
+			logger.error("Invalid message provided.");
+			return;
+		}
 
-	    JsonObject object = event.body();
-	    logger.debug(" --- Got event " + event.toString());
-	    logger.debug(" --- Got body + " + object.toString());
+		JsonObject object = event.body();
+		logger.debug(" --- Got event " + event.toString());
+		logger.debug(" --- Got body + " + object.toString());
 
-        byte [] payload = object.getBinary(PAYLOAD);
+		byte[] payload = object.getBinary(PAYLOAD);
 
-	    if (payload == null) {
-		    logger.debug(" --- Payload is null, trying to get the payload as String");
-		    payload = object.getString(PAYLOAD).getBytes();
-	    }
-	    logger.debug("Binary payload size: " + payload.length);
+		if (payload == null) {
+			logger.debug(" --- Payload is null, trying to get the payload as String");
+			payload = object.getString(PAYLOAD).getBytes();
+		}
+		logger.debug("Binary payload size: " + payload.length);
 
-        PutRecordRequest putRecordRequest = new PutRecordRequest();
-        putRecordRequest.setStreamName(streamName);
-        putRecordRequest.setPartitionKey(partitionKey);
+		PutRecordRequest putRecordRequest = new PutRecordRequest();
+		putRecordRequest.setStreamName(streamName);
+		putRecordRequest.setPartitionKey(partitionKey);
 
-        logger.info("Writing to streamName " + streamName + " using partitionkey " + partitionKey);
+		logger.info("Writing to streamName " + streamName + " using partitionkey " + partitionKey);
 
-        putRecordRequest.setData(ByteBuffer.wrap(payload));
+		putRecordRequest.setData(ByteBuffer.wrap(payload));
 
-        Future<PutRecordResult> futureResult = kinesisAsyncClient.putRecordAsync(putRecordRequest);
-        try
-        {
-            PutRecordResult recordResult = futureResult.get();
-            logger.info("Sent message to Kinesis: " + recordResult.toString());
-            sendOK(event);
-        }
+		Future<PutRecordResult> futureResult = kinesisAsyncClient.putRecordAsync(putRecordRequest);
+		try {
+			PutRecordResult recordResult = futureResult.get();
+			logger.info("Sent message to Kinesis: " + recordResult.toString());
+			sendOK(event);
+		} catch (InterruptedException | ExecutionException iexc) {
+			logger.error(iexc);
+			sendError(event, "Failed sending message to Kinesis", iexc);
+		}
+	}
 
-        catch (InterruptedException | ExecutionException iexc) {
-            logger.error(iexc);
-            sendError(event, "Failed sending message to Kinesis", iexc);
-        }
-    }
-
-    private boolean isValid(String str) {
-        return str != null && !str.isEmpty();
-    }
+	private boolean isValid(String str) {
+		return str != null && !str.isEmpty();
+	}
 }

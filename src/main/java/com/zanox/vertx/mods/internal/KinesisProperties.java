@@ -18,17 +18,17 @@ package com.zanox.vertx.mods.internal;
 
 public class KinesisProperties {
 
-    private KinesisProperties() {}
-
-    public static final String CONNECTION_TIMEOUT = "connectionTimeout";
-    public static final String MAX_CONNECTION = "maxConnection";
-    public static final String RETRY_POLICY = "retryPolicy";
-    public static final String SOCKET_TIMEOUT = "socketTimeout";
-    public static final String USE_REAPER = "useReaper";
-    public static final String USER_AGENT = "userAgent";
-    public static final String STREAM_NAME = "streamName";
-    public static final String PARTITION_KEY = "partitionKey";
+	public static final String CONNECTION_TIMEOUT = "connectionTimeout";
+	public static final String MAX_CONNECTION = "maxConnection";
+	public static final String RETRY_POLICY = "retryPolicy";
+	public static final String SOCKET_TIMEOUT = "socketTimeout";
+	public static final String USE_REAPER = "useReaper";
+	public static final String USER_AGENT = "userAgent";
+	public static final String STREAM_NAME = "streamName";
+	public static final String PARTITION_KEY = "partitionKey";
 	public static final String REGION = "region";
 	public static final String AWS_ACCESS_KEY = "awsAccessKey";
 	public static final String AWS_SECRET_KEY = "awsSecretKey";
+	private KinesisProperties() {
+	}
 }
