@@ -64,6 +64,17 @@ The detailed description of each parameter:
 
 Currently this version of mod-kinesis uses DEFAULT_RETRY_POLICY.
 
+
+Installation
+=======
+
+```
+vertx install com.zanox.vertx.mods~mod-kinesis~1.4.0
+```
+
+If you get a "not found" exception, you might need to edit the repos.txt of your Vert.x installation to use https.
+
+
 Usage
 =======
 
@@ -80,7 +91,7 @@ Example:
         config.putString("partitionKey", "myPartitionKey");
         config.putString("region", "eu-west-1");
         
-        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.2-SNAPSHOT", config);
+        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.4.0", config);
 
 ```
 
