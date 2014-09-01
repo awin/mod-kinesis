@@ -7,6 +7,6 @@
     "licenses": ["The Apache Software License Version 2.0"],
     "author": "Zanox AG",
     "developers": ["Sascha Möllering"],
-    "keywords": ["kafka", "event", "message", "producer"],
+    "keywords": ["kinesis", "event", "message", "producer"],
     "homepage": "https://github.com/zanox/mod-kinesis"
 }
