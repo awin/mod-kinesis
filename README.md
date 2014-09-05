@@ -64,12 +64,20 @@ The detailed description of each parameter:
 
 Currently this version of mod-kinesis uses DEFAULT_RETRY_POLICY.
 
+mod-kinesis is using the DefaultAWSCredentialsProviderChain of the AWS Java SDK (http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/auth/DefaultAWSCredentialsProviderChain.html). AWS credentials provider chain looks for credentials in this order:
+* Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_KEY
+* Java System Properties - aws.accessKeyId and aws.secretKey
+* Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI
+* Instance profile credentials delivered through the Amazon EC2 metadata service
+
+Instance profile credentials are the preferred way to get the necessary credentials. This approach uses IAM roles for EC2-instances (see example here: https://www.youtube.com/watch?v=C4AyfV3Z3xs).
+
 
 Installation
 =======
 
 ```
-vertx install com.zanox.vertx.mods~mod-kinesis~1.4.0
+vertx install com.zanox.vertx.mods~mod-kinesis~1.4.8
 ```
 
 If you get a "not found" exception, you might need to edit the repos.txt of your Vert.x installation to use https.
@@ -91,7 +99,7 @@ Example:
         config.putString("partitionKey", "myPartitionKey");
         config.putString("region", "eu-west-1");
         
-        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.4.0", config);
+        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.4.8", config);
 
 ```
 
