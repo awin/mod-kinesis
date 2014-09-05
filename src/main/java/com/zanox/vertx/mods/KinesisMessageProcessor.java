@@ -19,6 +19,7 @@ package com.zanox.vertx.mods;
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
+import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.retry.RetryPolicy;
@@ -105,12 +106,15 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		clientConfiguration.setUseReaper(useReaper);
 		clientConfiguration.setUserAgent(userAgent);
 
-		// Reading credentials from Classpath
-		// the file is called AwsCredentials.properties
-		// Properties are:
-		//  - accessKey
-		//  - secretKey
-		AWSCredentialsProvider awsCredentialsProvider = new ClasspathPropertiesFileCredentialsProvider();
+		/*
+		AWS credentials provider chain that looks for credentials in this order:
+			Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_KEY
+			Java System Properties - aws.accessKeyId and aws.secretKey
+			Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI
+			Instance profile credentials delivered through the Amazon EC2 metadata service
+		*/
+
+		AWSCredentialsProvider awsCredentialsProvider = new DefaultAWSCredentialsProviderChain();
 
 		// Configuring Kinesis-client with configuration
 		AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
