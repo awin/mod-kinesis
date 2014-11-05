@@ -117,7 +117,7 @@ JsonObject jsonObject = new JsonObject();
 jsonObject.putString("payload", "your message goes here");
 ```
 
-Then you can verify that you receive those messages in Kafka server by creating a consumer.
+Then you can verify that you receive those messages in Kinesis by creating a consumer.
 
 Now you will see the messages being consumed.
 
