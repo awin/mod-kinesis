@@ -20,6 +20,7 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.ClasspathPropertiesFileCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.handlers.AsyncHandler;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.retry.RetryPolicy;
@@ -28,6 +29,7 @@ import com.amazonaws.services.kinesis.model.PutRecordRequest;
 import com.amazonaws.services.kinesis.model.PutRecordResult;
 import com.zanox.vertx.mods.exception.KinesisException;
 import org.vertx.java.busmods.BusModBase;
+import org.vertx.java.core.Context;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.json.JsonObject;
@@ -124,7 +126,7 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		return kinesisAsyncClient;
 	}
 
-	protected void sendMessageToKinesis(Message<JsonObject> event) throws KinesisException {
+	protected void sendMessageToKinesis(final Message<JsonObject> event) throws KinesisException {
 		if (kinesisAsyncClient == null) {
 			throw new KinesisException("AmazonKinesisAsyncClient is not initialized");
 		}
@@ -154,15 +156,25 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 
 		putRecordRequest.setData(ByteBuffer.wrap(payload));
 
-		Future<PutRecordResult> futureResult = kinesisAsyncClient.putRecordAsync(putRecordRequest);
-		try {
-			PutRecordResult recordResult = futureResult.get();
-			logger.info("Sent message to Kinesis: " + recordResult.toString());
-			sendOK(event);
-		} catch (InterruptedException | ExecutionException iexc) {
-			logger.error(iexc);
-			sendError(event, "Failed sending message to Kinesis", iexc);
-		}
+                final Context ctx = vertx.currentContext();
+		kinesisAsyncClient.putRecordAsync(putRecordRequest, new AsyncHandler<PutRecordRequest,PutRecordResult>() {
+			public void onSuccess(PutRecordRequest request, final PutRecordResult recordResult) {
+				ctx.runOnContext(new Handler<java.lang.Void>() {
+					public void handle(java.lang.Void v) {
+						logger.info("Sent message to Kinesis: " + recordResult.toString());
+						sendOK(event);
+					}
+				});
+			}
+			public void onError(final java.lang.Exception iexc) {
+				ctx.runOnContext(new Handler<java.lang.Void>() {
+					public void handle(java.lang.Void v) {
+						logger.error(iexc);
+						sendError(event, "Failed sending message to Kinesis", iexc);
+					}
+				});
+			}
+		});
 	}
 
 	private boolean isValid(String str) {
