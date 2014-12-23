@@ -148,11 +148,14 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		}
 		logger.debug("Binary payload size: " + payload.length);
 
+		String msgPartitionKey = object.getString(PARTITION_KEY);
+		String requestPartitionKey = msgPartitionKey != null ? msgPartitionKey : partitionKey;
+
 		PutRecordRequest putRecordRequest = new PutRecordRequest();
 		putRecordRequest.setStreamName(streamName);
-		putRecordRequest.setPartitionKey(partitionKey);
+		putRecordRequest.setPartitionKey(requestPartitionKey);
 
-		logger.info("Writing to streamName " + streamName + " using partitionkey " + partitionKey);
+		logger.info("Writing to streamName " + streamName + " using partitionkey " + requestPartitionKey);
 
 		putRecordRequest.setData(ByteBuffer.wrap(payload));
 
