@@ -5,7 +5,7 @@
     <groupId>com.zanox.vertx.mods</groupId>
     <artifactId>mod-kinesis</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.14-SNAPSHOT</version>
+    <version>1.4.13</version>
     <name>Project - mod-kinesis</name>
     <description>Amazon Kinesis module for Vert.x framework</description>
     <url>https://github.com/zanox/mod-kinesis</url>
@@ -379,10 +379,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
-                <configuration>
-                    <excludePackageNames>*.support</excludePackageNames>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- GPG Signing during verify phase -->
