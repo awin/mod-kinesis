@@ -77,7 +77,7 @@ Installation
 =======
 
 ```
-vertx install com.zanox.vertx.mods~mod-kinesis~1.4.8
+vertx install com.zanox.vertx.mods~mod-kinesis~1.4.13
 ```
 
 If you get a "not found" exception, you might need to edit the repos.txt of your Vert.x installation to use https.
@@ -99,7 +99,7 @@ Example:
         config.putString("partitionKey", "myPartitionKey");
         config.putString("region", "eu-west-1");
         
-        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.4.8", config);
+        container.deployModule("com.zanox.vertx.mods~mod-kinesis~1.4.13", config);
 
 ```
 
@@ -117,6 +117,14 @@ JsonObject jsonObject = new JsonObject();
 jsonObject.putString("payload", "your message goes here");
 ```
 
+Additionally you can specify a partitionKey for each message:
+
+```java
+JsonObject jsonObject = new JsonObject();
+jsonObject.putString("payload", "your message goes here".getBytes());
+jsonObject.putString("partitionKey", "your partition key goes here");
+```
+
 Then you can verify that you receive those messages in Kinesis by creating a consumer.
 
 Now you will see the messages being consumed.
@@ -124,7 +132,7 @@ Now you will see the messages being consumed.
 
 License
 =========
-Copyright 2014, Zanox AG under Apache License. See `LICENSE`
+Copyright 2015, Zanox AG under Apache License. See `LICENSE`
 
 Author: Sascha Möllering
 
