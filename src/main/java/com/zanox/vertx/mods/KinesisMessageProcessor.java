@@ -162,20 +162,16 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
                 final Context ctx = vertx.currentContext();
 		kinesisAsyncClient.putRecordAsync(putRecordRequest, new AsyncHandler<PutRecordRequest,PutRecordResult>() {
 			public void onSuccess(PutRecordRequest request, final PutRecordResult recordResult) {
-				ctx.runOnContext(new Handler<java.lang.Void>() {
-					public void handle(java.lang.Void v) {
-						logger.info("Sent message to Kinesis: " + recordResult.toString());
-						sendOK(event);
-					}
-				});
+				ctx.runOnContext(v -> {
+                    logger.info("Sent message to Kinesis: " + recordResult.toString());
+                    sendOK(event);
+                });
 			}
 			public void onError(final java.lang.Exception iexc) {
-				ctx.runOnContext(new Handler<java.lang.Void>() {
-					public void handle(java.lang.Void v) {
-						logger.error(iexc);
-						sendError(event, "Failed sending message to Kinesis", iexc);
-					}
-				});
+				ctx.runOnContext(v -> {
+                    logger.error(iexc);
+                    sendError(event, "Failed sending message to Kinesis", iexc);
+                });
 			}
 		});
 	}
