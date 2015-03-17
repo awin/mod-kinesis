@@ -161,7 +161,7 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 			public void onSuccess(PutRecordRequest request, final PutRecordResult recordResult) {
 				ctx.runOnContext(new Handler<java.lang.Void>() {
 					public void handle(java.lang.Void v) {
-						logger.info("Sent message to Kinesis: " + recordResult.toString());
+						logger.debug("Sent message to Kinesis: " + recordResult.toString());
 						sendOK(event);
 					}
 				});
