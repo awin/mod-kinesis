@@ -90,6 +90,7 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		int socketTimeout = getOptionalIntConfig(SOCKET_TIMEOUT, ClientConfiguration.DEFAULT_SOCKET_TIMEOUT);
 		boolean useReaper = getOptionalBooleanConfig(USE_REAPER, ClientConfiguration.DEFAULT_USE_REAPER);
 		String userAgent = getOptionalStringConfig(USER_AGENT, ClientConfiguration.DEFAULT_USER_AGENT);
+		String endpoint = getOptionalStringConfig(ENDPOINT, null);
 
 
 		streamName = getMandatoryStringConfig(STREAM_NAME);
@@ -99,6 +100,9 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		logger.info(" --- Stream name: " + streamName);
 		logger.info(" --- Partition key: " + partitionKey);
 		logger.info(" --- Region: " + region);
+		if(endpoint != null) {
+			logger.info(" --- Endpoint: " + endpoint);
+		}
 
 		ClientConfiguration clientConfiguration = new ClientConfiguration();
 		clientConfiguration.setConnectionTimeout(connectionTimeout);
@@ -122,6 +126,9 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		AmazonKinesisAsyncClient kinesisAsyncClient = new AmazonKinesisAsyncClient(awsCredentialsProvider, clientConfiguration);
 		Region awsRegion = RegionUtils.getRegion(region);
 		kinesisAsyncClient.setRegion(awsRegion);
+		if(endpoint != null) {
+			kinesisAsyncClient.setEndpoint(endpoint);
+		}
 
 		return kinesisAsyncClient;
 	}
