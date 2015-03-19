@@ -27,6 +27,7 @@ When deploying this module, you need to provide the following configuration:
     "streamName": <streamName>,
     "partitionKey": <partitionKey>,
     "region": <region>,
+    "endpoint": <endpoint>,
     "connectionTimeout": <connectionTimeout>,
     "maxConnection": <maxConnection>,
     "socketTimeout": <socketTimeout>,
@@ -56,6 +57,7 @@ The detailed description of each parameter:
 * `streamName` (mandatory) - The name of the Kinesis stream where the data will be put 
 * `partitionKey` (mandatory) - Determines which shard in the stream the data record is assigned to.
 * `region` (mandatory) - The regional endpoint for this client's service calls.
+* `endpoint` (optional) - A Kinesis endpoint, e.g., `http://localhost:4567`. Useful for testing against a service like [Kinesalite](https://github.com/mhart/kinesalite).
 * `connectionTimeout` (optional) - The amount of time to wait (in milliseconds) when initially establishing a connection before giving up and timing out. 
 * `maxConnection` (optional) - The maximum number of allowed open HTTP connections.
 * `socketTimeout` (optional) - The amount of time to wait (in milliseconds) for data to be transfered over an established, open connection before the connection times out and is closed.
