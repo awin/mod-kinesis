@@ -2,7 +2,7 @@ Vert.x Kinesis Module
 ===========
 
 Kinesis module allows to receive events published by other Vert.x verticles and send those events to AWS Kinesis.
-+[![Build Status](https://travis-ci.org/zanox/mod-kinesis.svg?branch=master)](https://travis-ci.org/zanox/mod-kinesis)
+[![Build Status](https://travis-ci.org/zanox/mod-kinesis.svg?branch=master)](https://travis-ci.org/zanox/mod-kinesis)
 
 
 Dependencies
