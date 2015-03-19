@@ -162,7 +162,7 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		putRecordRequest.setStreamName(streamName);
 		putRecordRequest.setPartitionKey(requestPartitionKey);
 
-		logger.info("Writing to streamName " + streamName + " using partitionkey " + requestPartitionKey);
+		logger.debug("Writing to streamName " + streamName + " using partitionkey " + requestPartitionKey);
 
 		putRecordRequest.setData(ByteBuffer.wrap(payload));
 
