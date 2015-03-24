@@ -170,7 +170,7 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 		kinesisAsyncClient.putRecordAsync(putRecordRequest, new AsyncHandler<PutRecordRequest,PutRecordResult>() {
 			public void onSuccess(PutRecordRequest request, final PutRecordResult recordResult) {
 				ctx.runOnContext(v -> {
-                    logger.info("Sent message to Kinesis: " + recordResult.toString());
+                    logger.debug("Sent message to Kinesis: " + recordResult.toString());
                     sendOK(event);
                 });
 			}
