@@ -5,7 +5,7 @@
     <groupId>com.zanox.vertx.mods</groupId>
     <artifactId>mod-kinesis</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.14</version>
+    <version>1.4.17</version>
     <name>Project - mod-kinesis</name>
     <description>Amazon Kinesis module for Vert.x framework</description>
     <url>https://github.com/zanox/mod-kinesis</url>
