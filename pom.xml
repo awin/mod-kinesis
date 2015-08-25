@@ -5,7 +5,7 @@
     <groupId>com.zanox.vertx.mods</groupId>
     <artifactId>mod-kinesis</artifactId>
     <packaging>jar</packaging>
-    <version>1.4.17</version>
+    <version>1.4.20-SNAPSHOT</version>
     <name>Project - mod-kinesis</name>
     <description>Amazon Kinesis module for Vert.x framework</description>
     <url>https://github.com/zanox/mod-kinesis</url>
@@ -125,6 +125,23 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- log4j2 dependencies-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-jul</artifactId>
+            <version>2.3</version>
+        </dependency>
+
         <!--Test dependencies-->
         <dependency>
             <groupId>junit</groupId>
@@ -151,8 +168,6 @@
             <artifactId>aws-java-sdk</artifactId>
             <version>${version.aws}</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

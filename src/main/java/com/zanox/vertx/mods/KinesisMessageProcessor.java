@@ -46,9 +46,11 @@ import static com.zanox.vertx.mods.internal.KinesisProperties.*;
  * It subscribes to Vert.x's specific EventBus address to handle messages published by other verticles
  * and sends messages to Kinesis.
  */
+
 public class KinesisMessageProcessor extends BusModBase implements Handler<Message<JsonObject>> {
 
-	private AmazonKinesisAsyncClient kinesisAsyncClient;
+	private int retryCounter;
+    private AmazonKinesisAsyncClient kinesisAsyncClient;
 	private String streamName, partitionKey, region;
 
 	@Override
@@ -166,19 +168,30 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 
 		putRecordRequest.setData(ByteBuffer.wrap(payload));
 
-                final Context ctx = vertx.currentContext();
+        retryCounter = 0;
+		this.sendUsingAsyncClient(putRecordRequest, event);
+	}
+
+	private void sendUsingAsyncClient(final PutRecordRequest putRecordRequest, Message<JsonObject> event) {
+
+        if (retryCounter == 3) {
+            sendError(event, "Failed sending message to Kinesis");
+        }
+
+		final Context ctx = vertx.currentContext();
 		kinesisAsyncClient.putRecordAsync(putRecordRequest, new AsyncHandler<PutRecordRequest,PutRecordResult>() {
 			public void onSuccess(PutRecordRequest request, final PutRecordResult recordResult) {
 				ctx.runOnContext(v -> {
-                    logger.debug("Sent message to Kinesis: " + recordResult.toString());
-                    sendOK(event);
-                });
+					logger.debug("Sent message to Kinesis: " + recordResult.toString());
+					sendOK(event);
+				});
 			}
 			public void onError(final java.lang.Exception iexc) {
 				ctx.runOnContext(v -> {
-                    logger.error(iexc);
-                    sendError(event, "Failed sending message to Kinesis", iexc);
-                });
+                    retryCounter++;
+                    logger.info("Failed sending message to Kinesis, retry: " + retryCounter + " ... ", iexc);
+                    vertx.setTimer(500, timerID -> sendUsingAsyncClient(putRecordRequest, event));
+				});
 			}
 		});
 	}
