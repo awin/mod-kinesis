@@ -188,6 +188,8 @@ public class KinesisMessageProcessor extends BusModBase implements Handler<Messa
 			}
 			public void onError(final java.lang.Exception iexc) {
 				ctx.runOnContext(v -> {
+					logger.warn("Creating a new client .... ");
+					kinesisAsyncClient = createClient();
                     retryCounter++;
                     logger.info("Failed sending message to Kinesis, retry: " + retryCounter + " ... ", iexc);
                     vertx.setTimer(500, timerID -> sendUsingAsyncClient(putRecordRequest, event));
